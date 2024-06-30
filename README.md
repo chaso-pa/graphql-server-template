@@ -6,5 +6,7 @@
 ## How To Run
 ```zsh
 $ go run main.go
-$ air main.go (if [air](https://github.com/air-verse/air) installed)
+
+# ...or
+$ air main.go (if air installed)
 ```
