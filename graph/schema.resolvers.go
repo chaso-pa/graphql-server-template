@@ -6,48 +6,50 @@ package graph
 
 import (
 	"context"
-	"crypto/rand"
-	"fmt"
+	"github.com/lucsky/cuid"
 	"github/chaso-pa/gql-server/graph/model"
-	"math/big"
 )
 
 // CreateTodo is the resolver for the createTodo field.
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	randNumber, _ := rand.Int(rand.Reader, big.NewInt(100))
 	todo := &model.Todo{
+		ID:     cuid.New(),
 		Text:   input.Text,
-		ID:     fmt.Sprintf("T%d", randNumber),
 		UserID: input.UserID,
 	}
-	r.todos = append(r.todos, todo)
+	r.DB.Create(todo)
 	return todo, nil
 }
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	randNumber, _ := rand.Int(rand.Reader, big.NewInt(100))
 	user := &model.User{
-		ID:   fmt.Sprintf("T%d", randNumber),
+		ID:   cuid.New(),
 		Name: input.Name,
 	}
-	r.users = append(r.users, user)
+	r.DB.Create(user)
 	return user, nil
 }
 
 // Todos is the resolver for the todos field.
 func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	return r.todos, nil
+	todos := []*model.Todo{}
+	r.DB.Find(&todos)
+	return todos, nil
 }
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	return r.users, nil
+	users := []*model.User{}
+	r.DB.Find(&users)
+	return users, nil
 }
 
 // User is the resolver for the user field.
 func (r *todoResolver) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
-	return &model.User{ID: obj.UserID, Name: "user " + obj.UserID}, nil
+	var user = model.User{ID: obj.UserID}
+	r.DB.First(&user)
+	return &user, nil
 }
 
 // Mutation returns MutationResolver implementation.
